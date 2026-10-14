@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Habit Tracker & Productivity Suite</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/style.css?v=8">
+</head>
+<body>
+
+  <!-- Top Header (Ultra High-Contrast, Sleek & Minimalist) -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+          <path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.002 4.002 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"></path>
+        </svg>
+      </div>
+      <div class="brand-title">Habit Tracker</div>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge" id="userBadge" title="Account & Sign In">
+        <span class="user-dot"></span>
+        <span id="userBadgeText">@guest</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========================================================
+         TAB 1: HABITS & 365-DAY GITHUB CONTRIBUTION HEATMAP
+         ======================================================== -->
+    <div id="viewHabits" class="view-panel active">
+      <!-- 4 High-level 3D Stat Cards with Vivid Gradient Tops -->
+      <div class="stats-grid">
+        <div class="stat-card card-glow-orange">
+          <div class="stat-card-header">
+            <span>CURRENT STREAK</span>
+            <span class="stat-icon-glow">🔥</span>
+          </div>
+          <div class="stat-card-value" id="statCurrentStreak">0d</div>
+        </div>
+        <div class="stat-card card-glow-green">
+          <div class="stat-card-header">
+            <span>BEST STREAK</span>
+            <span class="stat-icon-glow">🏆</span>
+          </div>
+          <div class="stat-card-value" id="statBestStreak">0d</div>
+        </div>
+        <div class="stat-card card-glow-blue">
+          <div class="stat-card-header">
+            <span>TOTAL LOGS</span>
+            <span class="stat-icon-glow">✓</span>
+          </div>
+          <div class="stat-card-value" id="statTotalLogs">0</div>
+        </div>
+        <div class="stat-card card-glow-purple">
+          <div class="stat-card-header">
+            <span>ACTIVE DAYS</span>
+            <span class="stat-icon-glow">📅</span>
+          </div>
+          <div class="stat-card-value" id="statActiveDays">0</div>
+        </div>
+      </div>
+
+      <!-- GitHub 365-day Contribution Heatmap -->
+      <div class="section-header">
+        <span class="section-title">CONTRIBUTION HEATMAP (365 DAYS)</span>
+      </div>
+      <div class="heatmap-card">
+        <div class="heatmap-info">
+          <span id="heatmapContributionsLabel" style="font-weight: 600; color: #ffffff;">0 contributions in the last year</span>
+          <span style="color: var(--accent-neon); font-size: 0.72rem; font-weight: 700;">GitHub Dark Aesthetic</span>
+        </div>
+        <div class="heatmap-scroll-container" id="heatmapScrollContainer">
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
+        <div class="heatmap-legend">
+          <span>Less</span>
+          <div class="legend-cell lvl-0"></div>
+          <div class="legend-cell lvl-1"></div>
+          <div class="legend-cell lvl-2"></div>
+          <div class="legend-cell lvl-3"></div>
+          <div class="legend-cell lvl-4"></div>
+          <span>More</span>
+        </div>
+      </div>
+
+      <!-- Daily Habits List -->
+      <div class="section-header">
+        <span class="section-title">DAILY HABITS</span>
+        <span id="habitsCountLabel" class="count-pill">0 habits</span>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-chip active" data-filter="all">All Habits</button>
+        <button class="filter-chip" data-filter="boolean">Yes / No</button>
+        <button class="filter-chip" data-filter="measurable">Measurable</button>
+        <button class="filter-chip" data-filter="pomodoro">Pomodoro</button>
+      </div>
+
+      <div class="habit-list" id="habitsList">
+        <!-- Rendered daily habit cards -->
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 2: DEDICATED 3D POMODORO FOCUS TIMER
+         ======================================================== -->
+    <div id="viewPomodoro" class="view-panel pomodoro-view" style="display: none;">
+      <div class="mode-pills">
+        <button class="mode-pill active" data-mode="focus">Focus (25m)</button>
+        <button class="mode-pill" data-mode="shortBreak">Short Break (5m)</button>
+        <button class="mode-pill" data-mode="longBreak">Long Break (15m)</button>
+      </div>
+
+      <select class="habit-dropdown-select" id="pomodoroHabitSelect">
+        <option value="">Link a habit to this session (optional)...</option>
+      </select>
+
+      <div class="timer-container" id="timerOrb">
+        <svg class="timer-svg" viewBox="0 0 250 250">
+          <circle class="timer-circle-bg" cx="125" cy="125" r="105"></circle>
+          <circle class="timer-circle-progress" id="timerProgressCircle" cx="125" cy="125" r="105"
+            stroke-dasharray="660" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="timer-content">
+          <div class="timer-mode-label" id="timerModeLabel">FOCUS SESSION</div>
+          <div class="timer-clock" id="timerClock">25:00</div>
+          <div class="timer-status-label" id="timerStatusLabel">Ready to start</div>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <button class="btn-timer-secondary" id="btnTimerReset" title="Reset">↺</button>
+        <button class="btn-timer-main" id="btnTimerPlayPause">▶</button>
+        <button class="btn-timer-secondary" id="btnTimerSkip" title="Skip">⏭</button>
+      </div>
+
+      <div class="stat-card" style="width: 100%; max-width: 420px; margin-top: 18px;">
+        <div style="display: flex; justify-content: space-around; text-align: center;">
+          <div>
+            <div class="stat-card-header" style="justify-content: center;">SESSIONS TODAY</div>
+            <div class="stat-card-value" id="statPomodoroToday" style="font-size: 1.35rem; color: var(--accent-neon);">0</div>
+          </div>
+          <div style="width: 1px; background-color: var(--border-color);"></div>
+          <div>
+            <div class="stat-card-header" style="justify-content: center;">TOTAL FOCUS</div>
+            <div class="stat-card-value" id="statPomodoroMinutes" style="font-size: 1.35rem; color: var(--accent-blue);">0 mins</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 3: INTERACTIVE DAILY TIMELINE & TASK SCHEDULER
+         ======================================================== -->
+    <div id="viewPlanner" class="view-panel" style="display: none;">
+      <!-- Date Navigator Bar -->
+      <div class="day-nav-bar">
+        <button id="plannerPrevDay" class="day-nav-btn" title="Previous Day">◀</button>
+        <div class="day-nav-center">
+          <div id="plannerDateLabel" class="day-nav-date">Today, Oct 14</div>
+          <div id="plannerScorePill" class="day-score-pill">🎯 0% Productivity</div>
+        </div>
+        <button id="plannerNextDay" class="day-nav-btn" title="Next Day">▶</button>
+        <button id="plannerTodayJumpBtn" class="day-today-btn">Today</button>
+      </div>
+
+      <!-- Quick Inline Task Input with Smart Scheduler -->
+      <form id="quickTodoForm" class="quick-task-bar">
+        <input type="text" id="quickTodoInput" placeholder="+ Add task (e.g. '10am Team Meeting', '2pm Code Review')..." autocomplete="off">
+        <button type="submit" id="btnQuickTodoAdd">⚡ Add</button>
+      </form>
+
+      <!-- Timeline Time Filter Tabs -->
+      <div class="timeline-filters">
+        <button class="time-filter-btn active" data-filter="all">All Day (24h)</button>
+        <button class="time-filter-btn" data-filter="morning">🌅 Morning (6a-12p)</button>
+        <button class="time-filter-btn" data-filter="afternoon">☀️ Afternoon (12p-5p)</button>
+        <button class="time-filter-btn" data-filter="evening">🌙 Evening (5p-11p)</button>
+      </div>
+
+      <!-- Section Header with Quick Add Event Button -->
+      <div class="section-header" style="margin-top: 14px;">
+        <span class="section-title">🕒 DAILY HOUR-BY-HOUR TIMELINE</span>
+        <button id="btnOpenNewMeetingModal" class="btn-section-action">+ Add Time Block</button>
+      </div>
+
+      <!-- Vertical Interactive Timeline -->
+      <div id="timelineContainer" class="vertical-timeline">
+        <!-- Rendered hours and event cards -->
+      </div>
+
+      <!-- Unscheduled To-Do Tasks Section -->
+      <div class="section-header" style="margin-top: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="section-title">✅ UNSCHEDULED TO-DO TASKS</span>
+          <span id="plannerTodoBadge" class="count-pill">0 done</span>
+        </div>
+        <button id="btnOpenNewTodoModal" class="btn-section-action">+ Task</button>
+      </div>
+      <div id="todosList" class="day-section-list">
+        <!-- Rendered to-do items -->
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 4: CALENDAR, DAILY EXPENSES & SCREEN TIME HUB
+         ======================================================== -->
+    <div id="viewHub" class="view-panel" style="display: none;">
+      <div class="section-header">
+        <span class="section-title">MONTHLY CALENDAR & HISTORY</span>
+      </div>
+
+      <!-- Calendar Widget -->
+      <div class="calendar-widget">
+        <div class="cal-header">
+          <button id="calPrevMonth" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 4px 8px;">◀</button>
+          <span id="calMonthLabel" style="font-weight: 800; font-size: 1rem; color: #fff;">October 2026</span>
+          <button id="calNextMonth" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem; padding: 4px 8px;">▶</button>
+        </div>
+        <div class="cal-days-grid" id="calendarGrid">
+          <!-- Calendar Days Grid -->
+        </div>
+      </div>
+
+      <!-- Productivity Score Card -->
+      <div class="productivity-score-card">
+        <div>
+          <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px;">DAILY PRODUCTIVITY SCORE</span>
+          <div style="font-size: 1.25rem; font-weight: 800; margin-top: 2px; color: #fff;" id="hubDateTitle">Today's Performance</div>
+          <span style="font-size: 0.8rem; color: var(--text-secondary);" id="hubScoreFeedback">Keep building your streak momentum!</span>
+        </div>
+        <div class="score-circle" id="hubScoreValue">0%</div>
+      </div>
+
+      <!-- Metrics Row (Expenses & Screen Time) -->
+      <div class="breakdown-row">
+        <!-- Expenses Card -->
+        <div class="stat-card card-glow-orange">
+          <div class="stat-card-header">
+            <span>TODAY'S EXPENSES</span>
+            <button id="btnOpenAddExpenseModal" style="background: none; border: none; color: var(--accent-orange); font-size: 1.1rem; cursor: pointer; font-weight: 800;">+</button>
+          </div>
+          <div class="stat-card-value" id="hubExpenseTotal" style="color: var(--accent-orange);">$0.00</div>
+          <div style="font-size: 0.72rem; color: var(--text-secondary);" id="hubExpenseCount">0 transactions</div>
+        </div>
+
+        <!-- Screen Time Card -->
+        <div class="stat-card card-glow-blue">
+          <div class="stat-card-header">
+            <span>SCREEN TIME</span>
+            <button id="btnOpenScreenTimeModal" style="background: none; border: none; color: var(--accent-blue); font-size: 1rem; cursor: pointer;">✎</button>
+          </div>
+          <div class="stat-card-value" id="hubScreenTotal">0h 0m</div>
+          <div style="font-size: 0.72rem; color: var(--accent-neon);" id="hubScreenProductive">0m productive</div>
+        </div>
+      </div>
+
+      <!-- Detailed Expenses List for Selected Date -->
+      <div class="section-header" style="margin-top: 14px;">
+        <span class="section-title">DAY'S EXPENSES BREAKDOWN</span>
+      </div>
+      <div id="hubExpensesList" class="day-section-list">
+        <!-- Rendered expense cards -->
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 5: STREAK COMPETITION WITH FRIENDS (LEADERBOARD)
+         ======================================================== -->
+    <div id="viewLeaderboard" class="view-panel" style="display: none;">
+      <div class="section-header">
+        <span class="section-title">STREAK COMPETITION WITH FRIENDS</span>
+        <span style="font-size: 0.75rem; color: var(--accent-orange); font-weight: 700;">🔥 Leaderboard</span>
+      </div>
+      <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 14px; font-size: 0.82rem; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between;">
+        <span>Complete daily habits to keep your flame alive and climb above your friends!</span>
+        <button id="btnOpenInviteModal" style="background: var(--primary-green); border: none; color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 10px;">
+          + Invite
+        </button>
+      </div>
+      <div class="leaderboard-list" id="leaderboardList">
+        <!-- Ranked users rendered here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Action Button (+ New Habit) -->
+  <button class="fab" id="btnOpenNewHabitModal">
+    <span>+</span>
+    <span>New Habit</span>
+  </button>
+
+  <!-- 5-Item Bottom Navigation Bar (Ultra-Responsive & Vibrant) -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="navHabits">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M10.5 7.75a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm1.43.75a4.002 4.002 0 01-7.86 0H.75a.75.75 0 110-1.5h3.32a4.002 4.002 0 017.86 0h3.32a.75.75 0 110 1.5h-3.32z"></path></svg>
+      <span>Habits</span>
+    </button>
+    <button class="nav-item" id="navPomodoro">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.25 1a.75.75 0 011.5 0v1.034a7.001 7.001 0 014.28 2.062l.85-.85a.75.75 0 111.06 1.06l-.85.85a7.002 7.002 0 01.91 8.544 7 7 0 11-10.82-8.544l-.85-.85a.75.75 0 011.06-1.06l.85.85A7.001 7.001 0 017.25 2.034V1zM8 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zm.75 2a.75.75 0 00-1.5 0v3.25c0 .414.336.75.75.75h2.5a.75.75 0 000-1.5H8.75V5.5z"></path></svg>
+      <span>Focus</span>
+    </button>
+    <button class="nav-item" id="navPlanner">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4.75 0a.75.75 0 01.75.75V2h5V.75a.75.75 0 011.5 0V2h1.25C14.44 2 15 2.56 15 3.25v10.5c0 .69-.56 1.25-1.25 1.25H2.25c-.69 0-1.25-.56-1.25-1.25V3.25C1 2.56 1.56 2 2.25 2H3.5V.75A.75.75 0 014.75 0zm8.75 4.5H2.5v9h11v-9z"></path></svg>
+      <span>Planner</span>
+    </button>
+    <button class="nav-item" id="navHub">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 2a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H2a2 2 0 01-2-2V2zm14 2H2v10h12V4z"></path></svg>
+      <span>Hub</span>
+    </button>
+    <button class="nav-item" id="navLeaderboard">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 13h12a1 1 0 011 1v1a1 1 0 01-1 1H2a1 1 0 01-1-1v-1a1 1 0 011-1zm3-4h6a1 1 0 011 1v2H4v-2a1 1 0 011-1zm2-5h2a1 1 0 011 1v3H7V5a1 1 0 011-1z"></path></svg>
+      <span>Ranks</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================
+       MODALS
+       ======================================================== -->
+
+  <!-- MODAL 1: New Habit Sheet -->
+  <div class="modal-overlay" id="newHabitModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">New Habit</h3>
+        <button class="modal-close-btn" data-modal="newHabitModal">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Habit Title</label>
+        <input type="text" class="form-input" id="newHabitTitle" placeholder="e.g. Read 15 pages, Drink Water">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description (optional)</label>
+        <input type="text" class="form-input" id="newHabitDesc" placeholder="Why do you want to build this habit?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Habit Type</label>
+        <div class="type-buttons">
+          <button class="type-btn active" data-type="boolean">Yes / No</button>
+          <button class="type-btn" data-type="measurable">Measurable</button>
+          <button class="type-btn" data-type="pomodoro">Pomodoro</button>
+        </div>
+      </div>
+      <div class="form-group" id="targetValueGroup" style="display: none;">
+        <label class="form-label">Daily Goal & Unit</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" class="form-input" id="newHabitTarget" style="flex: 1;" value="8" min="1">
+          <input type="text" class="form-input" id="newHabitUnit" style="flex: 2;" placeholder="glasses, pages, sessions" value="glasses">
+        </div>
+      </div>
+      <button class="btn-submit" id="btnCreateHabitSubmit">Create Habit</button>
+    </div>
+  </div>
+
+  <!-- MODAL 2: New Meeting / Timetable Block -->
+  <div class="modal-overlay" id="newMeetingModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">Schedule Time Block</h3>
+        <button class="modal-close-btn" data-modal="newMeetingModal">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Event / Task Title</label>
+        <input type="text" class="form-input" id="meetingTitle" placeholder="e.g. Architecture Sprint, Team Standup">
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Start Time</label>
+          <input type="time" class="form-input" id="meetingStart" value="10:00">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">End Time</label>
+          <input type="time" class="form-input" id="meetingEnd" value="11:00">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="meetingType">
+          <option value="focus_block">🟢 Deep Focus / Coding</option>
+          <option value="meeting">🟣 Meeting (Zoom / Google Meet)</option>
+          <option value="study">🔵 Study / Task</option>
+          <option value="workout">🟠 Workout / Sports</option>
+          <option value="routine">🌸 Routine / Personal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Meeting Link / Location (Optional)</label>
+        <input type="text" class="form-input" id="meetingLink" placeholder="e.g. https://meet.google.com/xyz or Room 402">
+      </div>
+      <button class="btn-submit" id="btnSaveMeeting">Save to Timeline</button>
+    </div>
+  </div>
+
+  <!-- MODAL 3: New To-Do Task -->
+  <div class="modal-overlay" id="newTodoModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">New To-Do Task</h3>
+        <button class="modal-close-btn" data-modal="newTodoModal">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task Description</label>
+        <input type="text" class="form-input" id="todoTitleInput" placeholder="e.g. Refactor API routes, Send invoices">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-input" id="todoPriorityInput">
+          <option value="high">🔴 High Priority</option>
+          <option value="medium" selected>🟡 Medium Priority</option>
+          <option value="low">🔵 Low Priority</option>
+        </select>
+      </div>
+      <button class="btn-submit" id="btnSaveTodo">Add Task</button>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Log Daily Expense -->
+  <div class="modal-overlay" id="addExpenseModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">Log Expense</h3>
+        <button class="modal-close-btn" data-modal="addExpenseModal">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expense Description</label>
+        <input type="text" class="form-input" id="expenseTitleInput" placeholder="e.g. Lunch with team, Server Hosting, Coffee">
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Amount ($)</label>
+          <input type="number" step="0.01" class="form-input" id="expenseAmountInput" placeholder="15.50">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Category</label>
+          <select class="form-input" id="expenseCategoryInput">
+            <option value="food">Food 🍔</option>
+            <option value="tech">Tech / Software 💻</option>
+            <option value="transport">Transport 🚗</option>
+            <option value="books">Books / Learning 📚</option>
+            <option value="health">Health 💊</option>
+            <option value="bills">Bills 📄</option>
+            <option value="entertainment">Entertainment 🍿</option>
+            <option value="other">Other 🛒</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-submit" id="btnSaveExpense">Record Expense</button>
+    </div>
+  </div>
+
+  <!-- MODAL 5: Log Screen Time -->
+  <div class="modal-overlay" id="screenTimeModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">Log Screen Time</h3>
+        <button class="modal-close-btn" data-modal="screenTimeModal">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Screen Time (Minutes)</label>
+        <input type="number" class="form-input" id="stTotalMinutes" placeholder="e.g. 360 (for 6 hours)">
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Productive Mins</label>
+          <input type="number" class="form-input" id="stProductiveMinutes" placeholder="e.g. 240">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Entertainment Mins</label>
+          <input type="number" class="form-input" id="stEntertainmentMinutes" placeholder="e.g. 120">
+        </div>
+      </div>
+      <button class="btn-submit" id="btnSaveScreenTime">Save Screen Time</button>
+    </div>
+  </div>
+
+  <!-- MODAL 6: Account / Google & Name Login -->
+  <div class="modal-overlay" id="accountModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">Account & Profile</h3>
+        <button class="modal-close-btn" data-modal="accountModal">✕</button>
+      </div>
+
+      <!-- Current Profile Box -->
+      <div id="accountProfileBox" class="account-profile-box">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div id="accountAvatar" class="account-avatar">U</div>
+          <div>
+            <div id="accountDisplayName" style="font-weight: 800; font-size: 1rem; color: #fff;">Logged In</div>
+            <div id="accountUsername" style="font-size: 0.78rem; color: var(--accent-neon);">@guest</div>
+          </div>
+        </div>
+        <button id="btnSignOut" class="btn-signout">Sign Out</button>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button class="btn-google" id="btnGoogleSignIn">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="divider-or"><span>OR SWITCH BY NAME</span></div>
+
+      <!-- Quick Login With Name -->
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" class="form-input" id="nameLoginInput" placeholder="e.g. Kunnu, Alex, Sarah">
+          <button class="btn-submit" id="btnNameLoginSubmit" style="width: auto; margin-top: 0; padding: 0 18px; white-space: nowrap;">
+            Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 7: Invite Friends & Mobile Access Sheet -->
+  <div class="modal-overlay" id="inviteModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff;">📲 Share & Invite Friends</h3>
+        <button class="modal-close-btn" data-modal="inviteModal">✕</button>
+      </div>
+      
+      <div class="share-box">
+        <div style="font-weight: 800; color: var(--accent-neon); font-size: 0.82rem;">LOCAL WI-FI (FASTEST)</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin: 6px 0;">
+          Open on any phone connected to this Wi-Fi:
+        </div>
+        <div class="share-url-row">
+          <input type="text" readonly id="shareWifiUrl" value="http://192.168.1.3:5000" class="form-input" style="font-family: monospace; font-size: 0.85rem;">
+          <button class="btn-copy" id="btnCopyWifiUrl">Copy</button>
+        </div>
+      </div>
+
+      <div class="share-box" style="margin-top: 10px;">
+        <div style="font-weight: 800; color: var(--accent-blue); font-size: 0.82rem;">WORLDWIDE LINK (4G/5G / OUTSIDE)</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin: 6px 0;">
+          Share with friends anywhere on mobile data:
+        </div>
+        <div class="share-url-row">
+          <input type="text" readonly id="shareWorldwideUrl" value="https://rich-wasps-divide.loca.lt" class="form-input" style="font-family: monospace; font-size: 0.85rem;">
+          <button class="btn-copy" id="btnCopyWorldwideUrl">Copy</button>
+        </div>
+      </div>
+
+      <!-- WhatsApp Direct Share Button -->
+      <a id="btnWhatsAppShare" href="#" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #25D366; color: #ffffff; text-decoration: none; font-weight: 800; font-size: 0.95rem; padding: 12px; border-radius: 8px; margin-top: 14px; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4); transition: transform 0.15s ease;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.969.587 1.961.954 3.008.954 3.017 0 5.769-2.587 5.77-5.766.001-3.187-2.575-5.77-6.001-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.074-2.12-.516-1.748-.722-2.887-2.493-2.974-2.608-.087-.116-.708-.941-.708-1.792s.448-1.272.607-1.446c.159-.175.347-.218.463-.218l.332.006c.116 0 .26-.044.405.304.145.348.492 1.2.535 1.288.043.088.072.19.014.305-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.088.275.073.376-.043.101-.116.433-.506.549-.68.116-.175.231-.145.39-.088s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.155.57 4.177 1.564 5.927l-1.66 6.073 6.257-1.642c1.701.927 3.651 1.458 5.727 1.458 6.627 0 12-5.373 12-12s-5.373-12-12-12zm.112 21.6c-1.892 0-3.665-.561-5.156-1.523l-.369-.238-3.722.977 1.002-3.626-.263-.418c-1.074-1.71-1.642-3.699-1.642-5.772 0-5.293 4.307-9.6 9.6-9.6 5.293 0 9.6 4.307 9.6 9.6 0 5.293-4.307 9.6-9.6 9.6z"/>
+        </svg>
+        <span>Share Directly on WhatsApp</span>
+      </a>
+
+      <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 12px; font-size: 0.78rem; color: var(--text-secondary);">
+        <strong>💡 Add to Home Screen for Native App:</strong><br>
+        • <strong>iPhone:</strong> Safari Share icon ➔ "Add to Home Screen"<br>
+        • <strong>Android:</strong> Chrome menu (⋮) ➔ "Install app" / "Add to Home screen"<br>
+        Each friend enters their name and competes on your live leaderboard!
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <script src="/app.js?v=9"></script>
+</body>
+</html>
